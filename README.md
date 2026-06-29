@@ -2,14 +2,6 @@
 # 💧 Smart IoT-Based University Water Quality Monitoring Platform
 
 > 🚀 An intelligent IoT platform for real-time water quality monitoring and predictive analytics in university campuses.
-
-![Status](https://img.shields.io/badge/Status-Ongoing-yellow)
-![Platform](https://img.shields.io/badge/Platform-ESP32-blue)
-![Cloud](https://img.shields.io/badge/Cloud-Firebase-orange)
-![Frontend](https://img.shields.io/badge/Frontend-React.js-61DAFB)
-![Backend](https://img.shields.io/badge/Backend-Python-green)
-![License](https://img.shields.io/badge/License-MIT-success)
-
 ---
 
 ## 📌 Overview
