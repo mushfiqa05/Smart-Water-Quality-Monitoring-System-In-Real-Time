@@ -1,256 +1,192 @@
-````markdown
-# 💧 Smart IoT-Based University Water Quality Monitoring Platform
 
-> 🚀 An intelligent IoT platform for real-time water quality monitoring and predictive analytics in university campuses.
----
+# Smart IoT-Based University Water Quality Monitoring System
 
-## 📌 Overview
+An ESP32-based IoT system developed as a final-year engineering project to monitor water quality parameters and tank levels in university campuses. The system collects sensor readings, sends data to Firebase, and displays the results through a web dashboard.
 
-The **Smart IoT-Based University Water Quality Monitoring Platform** is an end-to-end IoT solution designed to continuously monitor water quality across multiple university water tanks. The system collects real-time data from various water quality sensors, processes it using an ESP32 microcontroller, stores the data in the cloud, and visualizes it through a responsive web dashboard.
+The hardware prototype was completed and presented to the project jury. The dashboard was deployed using Firebase Hosting.
 
-The platform aims to help university administrators monitor water quality remotely, receive instant alerts, analyze historical trends, and support future AI-based predictive maintenance.
+## Overview
 
----
+Monitoring water quality and water storage levels is important for university campuses, where tanks supply water to different buildings and facilities. Manual inspection can make continuous monitoring difficult.
 
-## 🎯 Project Objectives
+This project combines sensor interfacing, embedded programming, cloud connectivity, and web-based visualization to provide a centralized view of water-related measurements.
 
-- Monitor water quality in real time
-- Centralized monitoring of multiple water tanks
-- Cloud-based data storage
-- Intelligent alert system
-- Historical data visualization
-- Water Quality Index (WQI) calculation
-- AI-based water quality prediction *(In Progress)*
-- Scalable architecture for campus-wide deployment
+The system uses an ESP32 to collect and process readings from connected sensors. The readings are uploaded to Firebase Realtime Database over Wi-Fi and displayed through a web dashboard.
 
----
+## Project Objectives
 
-## 🏗️ System Architecture
+- Monitor selected water quality parameters in real time.
+- Measure water levels using an ultrasonic sensor.
+- Upload sensor readings to a cloud database.
+- Display monitoring data through a web dashboard.
+- Calculate a custom Water Quality Score using threshold-based rules.
+- Support historical monitoring and analysis.
+- Establish a foundation for future predictive analytics and campus-wide deployment.
+
+## System Architecture
 
 ```text
-                    University Dashboard
-                             │
-                   React.js + Chart.js
-                             │
-                     Firebase Cloud
-                             │
-                  WiFi / Internet Network
-                             │
-                         ESP32 Controller
-      ┌──────────────┬──────────────┬──────────────┐
-      │              │              │              │
- Temperature       TDS            pH         Turbidity
-      │              │              │              │
-      └──────────────┴──────────────┴──────────────┘
-                     Water Level Sensor
-````
+  Water Quality and Level Sensors
+                 |
+                 v
+          ESP32 DevKit V1
+      Sensor Reading and Processing
+                 |
+              Wi-Fi
+                 |
+                 v
+      Firebase Realtime Database
+                 |
+                 v
+        Web Monitoring Dashboard
+        HTML / CSS / JavaScript
+                 |
+                 v
+         Water Data Visualization
+```
 
----
+The ESP32 handles sensor acquisition and processing. Firebase Realtime Database stores the uploaded readings, while the web dashboard presents the available data to users.
 
-## ✨ Features
+## Hardware Components
 
-* 📡 Real-time Water Quality Monitoring
-* 🌡️ Water Temperature Monitoring
-* 💧 TDS Measurement
-* ⚡ Electrical Conductivity (EC) Calculation
-* 🧪 pH Monitoring
-* 🌫️ Turbidity Monitoring
-* 📈 Water Level Monitoring
-* 📊 Water Quality Index (WQI)
-* ☁️ Firebase Cloud Integration
-* 📱 Responsive Web Dashboard
-* 📉 Historical Analytics
-* 🚨 Smart Alerts
-* 🤖 AI-Based Prediction *(Planned)*
-* 🏫 Multi-Tank Monitoring *(Planned)*
+| Component | Purpose |
+|---|---|
+| ESP32 DevKit V1 | Main microcontroller and Wi-Fi connectivity |
+| PH-4502C pH sensor module | Measures pH-related sensor output |
+| Gravity TDS sensor | Estimates total dissolved solids |
+| Turbidity sensor | Measures water turbidity |
+| DS18B20 waterproof sensor | Measures water temperature |
+| HC-SR04 ultrasonic sensor | Estimates tank water level |
 
----
+## Software and Technologies
 
-## 🛠 Hardware Components
+- **Embedded programming:** C++ and Arduino IDE
+- **Microcontroller:** ESP32
+- **Frontend:** HTML, CSS and JavaScript
+- **Cloud database:** Firebase Realtime Database
+- **Web hosting:** Firebase Hosting
+- **Communication:** Wi-Fi
 
-| Component                | Description                   |
-| ------------------------ | ----------------------------- |
-| ESP32                    | Main IoT Controller           |
-| DS18B20                  | Waterproof Temperature Sensor |
-| Gravity TDS Sensor       | Water TDS Measurement         |
-| Gravity pH Sensor        | Water pH Measurement          |
-| Gravity Turbidity Sensor | Water Clarity Measurement     |
-| Ultrasonic Sensor        | Water Level Monitoring        |
-| OLED Display             | Local Data Display            |
+## How It Works
 
----
+1. The sensors collect readings from the water and tank.
+2. The ESP32 reads and processes the sensor signals.
+3. The readings are uploaded to Firebase Realtime Database over Wi-Fi.
+4. The web dashboard retrieves the available data and displays it.
+5. A custom rule-based scoring method evaluates selected parameters against configured thresholds.
 
-## 💻 Software Stack
+## Parameters Monitored
 
-### Embedded
+| Parameter | Unit | Measurement Method |
+|---|---|---|
+| pH | pH scale | Analog pH sensor |
+| Total dissolved solids (TDS) | ppm | TDS sensor |
+| Electrical conductivity (EC) | µS/cm | Estimated from TDS |
+| Turbidity | NTU | Turbidity sensor |
+| Water temperature | °C | DS18B20 |
+| Tank water level | % | Ultrasonic distance measurement |
 
-* Arduino IDE
-* C++
-* ESP32 Framework
+Electrical conductivity is estimated from TDS readings; a dedicated EC probe is not used in the current prototype.
 
-### Cloud
+Sensor calibration and validation against reference instruments are important for improving measurement accuracy.
 
-* Firebase Realtime Database
+## Water Quality Score
 
-### Frontend
+The project implements a custom Water Quality Score based on configured thresholds for selected parameters, including pH, TDS, turbidity, temperature, conductivity, and tank level.
 
-* React.js
-* Bootstrap
-* CSS
-* Chart.js
+The score begins at 100, with deductions applied when defined conditions are exceeded. The resulting score is grouped into project-defined status categories.
 
-### Backend
+This is a project-specific rule-based score, not a certified Water Quality Index (WQI). It should not be used on its own to determine whether water is safe to drink. Reliable drinking-water assessment requires appropriate testing and validation against relevant standards.
 
-* Python
-* REST APIs
+## Web Dashboard
 
-### Machine Learning *(Upcoming)*
+The dashboard provides a web-based interface for viewing water monitoring data. It was deployed using Firebase Hosting and uses Firebase Realtime Database for cloud data.
 
-* Scikit-learn
-* Pandas
-* NumPy
+The dashboard is built with HTML, CSS, and JavaScript.
 
----
+Dashboard screenshots and the public deployment URL can be added to this section when available. A working demonstration video is not currently included in the repository.
 
-## 📊 Parameters Monitored
+## Project Status
 
-| Parameter           | Unit     |
-| ------------------- | -------- |
-| Temperature         | °C       |
-| TDS                 | ppm      |
-| EC                  | mS/cm    |
-| pH                  | pH Scale |
-| Turbidity           | NTU      |
-| Water Level         | %        |
-| Water Quality Index | WQI      |
+The hardware prototype was completed and presented to the project jury. The web dashboard was also deployed.
 
----
+The project demonstrates sensor-based monitoring, embedded data processing, cloud integration, and web-based visualization.
 
-## 🔄 Project Workflow
+Machine-learning-based prediction and predictive maintenance are future enhancements, not implemented features of the current system.
+
+## Research Publication
+
+A research paper based on this project was submitted to ICCSDI.
+
+**Publication details provided:**
+
+- **Proceedings:** Proceedings of International Conference on Computational Science and Data Intelligence
+- **ISBN:** 978-81-999473-7-5
+- **Publisher:** SYBGEN Learning
+
+The exact paper title, author list, page numbers, and publication link should be added after verification against the conference proceedings.
+
+## Limitations
+
+- Sensor readings depend on calibration, sensor condition, and measurement conditions.
+- The custom Water Quality Score is not a certified water-quality index.
+- Electrical conductivity is estimated from TDS rather than measured using a dedicated EC probe.
+- Cloud dashboard updates depend on network availability.
+- The current system does not implement machine-learning-based prediction.
+- The prototype requires further validation before use in safety-critical water-quality decisions.
+
+## Future Scope
+
+- Improve sensor calibration and measurement accuracy.
+- Add offline data buffering and synchronization.
+- Expand historical analytics and reporting.
+- Evaluate MQTT for alternative IoT communication.
+- Explore predictive analytics using validated historical data.
+- Investigate automated pump control with suitable safety mechanisms.
+- Extend the design to multiple tanks and additional monitoring nodes.
+- Evaluate mobile access and industrial-grade sensor integration.
+
+## Applications
+
+- University and campus water-tank monitoring
+- Smart campus infrastructure
+- Water storage and distribution monitoring
+- Water-treatment monitoring
+- Residential and industrial water systems
+
+These are potential application areas; deployment beyond the completed prototype would require additional testing and adaptation.
+
+## Repository Structure
 
 ```text
-Water Tank
-     │
-     ▼
-Sensors
-     │
-     ▼
-ESP32
-     │
-     ▼
-Data Processing
-     │
-     ▼
-OLED Display
-     │
-     ▼
-WiFi
-     │
-     ▼
-Firebase Cloud
-     │
-     ▼
-React Dashboard
-     │
-     ▼
-Historical Analytics
-     │
-     ▼
-AI Prediction (Future)
-```
-
----
-
-## 📷 Dashboard Preview
-
-> Screenshots will be added after dashboard development.
-
-```
-/images/dashboard.png
-/images/mobile-dashboard.png
-```
-
----
-
-## 📂 Project Structure
-
-```
-Smart-Water-Monitoring/
-│
-├── Arduino_Code/
-│
-├── React_Dashboard/
-│
-├── Backend/
-│
-├── ML_Model/
-│
-├── Circuit_Diagram/
-│
-├── Documentation/
-│
-├── Images/
-│
+Smart-Water-Quality-Monitoring-System-In-Real-Time/
+├── firmware/
+│   └── ESP32 source files
+├── dashboard/
+│   ├── index.html
+│   ├── style.css
+│   ├── script.js
+│   └── assets/
+├── docs/
+│   ├── circuit-diagram/
+│   └── system-architecture/
+├── images/
+│   ├── hardware/
+│   └── dashboard/
+├── paper/
+│   └── publication-details.md
+├── .gitignore
 └── README.md
 ```
 
----
+The structure above is a suggested organization. Folder contents should reflect the actual source files and documentation included in the repository.
 
-## 🚀 Future Roadmap
-
-* [x] ESP32 Integration
-* [x] OLED Display
-* [x] Firebase Integration
-* [ ] React Dashboard
-* [ ] Authentication
-* [ ] Historical Analytics
-* [ ] Water Quality Index
-* [ ] AI Prediction
-* [ ] Pump Automation
-* [ ] Mobile Application
-* [ ] Multi-Tank Monitoring
-* [ ] Industrial Sensor Integration
-* [ ] Campus Deployment
-
----
-
-## 📈 Expected Applications
-
-* University Water Tank Monitoring
-* Smart Campus Infrastructure
-* Water Treatment Plants
-* Industrial Water Monitoring
-* Residential Water Supply
-* Municipal Water Distribution
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome!
-
-Feel free to fork the repository, raise issues, or submit pull requests.
-
----
-
-## 📜 License
-
-This project is licensed under the **MIT License**.
-
----
-
-## 👨‍💻 Author
+## Author
 
 **Mushfiqa Shaikh**
 
 B.Tech Computer Engineering
 
-IoT • Embedded Systems • Full Stack Development 
+Interests: IoT, Embedded Systems, Firmware Development and Connected Systems
 
-
----
-
-⭐ If you found this project useful, don't forget to **Star** the repository!
-
-```
-```
+GitHub: [mushfiqa05](https://github.com/mushfiqa05)
