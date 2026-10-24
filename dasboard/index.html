@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart IoT Water Monitoring Platform</title>
+  <link rel="stylesheet" href="css/style.css">
+  <!-- External Libraries -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body data-theme="light">
+
+  <!-- PRELOADER -->
+  <div id="preloader">
+    <div class="loader-ring"></div>
+    <div class="loader-text">Initializing Sensor Network…</div>
+  </div>
+
+  <!-- SVG ICON SYMBOLS -->
+  <svg style="display:none;">
+    <defs>
+      <g id="icon-thermometer">
+        <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" />
+      </g>
+      <g id="icon-droplet">
+        <path d="M12 2.69s6 6.13 6 10.31a6 6 0 1 1-12 0c0-4.18 6-10.31 6-10.31z" />
+      </g>
+      <g id="icon-activity">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+      </g>
+      <g id="icon-flask">
+        <path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3" />
+      </g>
+      <g id="icon-eye">
+        <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" />
+        <circle cx="12" cy="12" r="3" />
+      </g>
+      <g id="icon-waves">
+        <path d="M22 8c-2 0-2 2-4 2s-2-2-4-2-2 2-4 2-2-2-4-2-2 2-4 2" />
+        <path d="M22 14c-2 0-2 2-4 2s-2-2-4-2-2 2-4 2-2-2-4-2-2 2-4 2" />
+        <path d="M22 20c-2 0-2 2-4 2s-2-2-4-2-2 2-4 2-2-2-4-2-2 2-4 2" />
+      </g>
+      <g id="icon-mapPin">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z" />
+        <circle cx="12" cy="10" r="3" />
+      </g>
+      <g id="icon-clock">
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12 6 12 12 16 14" />
+      </g>
+      <g id="icon-checkCircle">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+        <polyline points="22 4 12 14.01 9 11.01" />
+      </g>
+      <g id="icon-xCircle">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="15" y1="9" x2="9" y2="15" />
+        <line x1="9" y1="9" x2="15" y2="15" />
+      </g>
+      <g id="icon-alertTriangle">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+        <line x1="12" y1="9" x2="12" y2="13" />
+        <line x1="12" y1="17" x2="12.01" y2="17" />
+      </g>
+      <g id="icon-wifi">
+        <path d="M5 12.55a11 11 0 0 1 14.08 0" />
+        <path d="M1.42 9a16 16 0 0 1 21.16 0" />
+        <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
+        <line x1="12" y1="20" x2="12.01" y2="20" />
+      </g>
+      <g id="icon-wifiOff">
+        <line x1="1" y1="1" x2="23" y2="23" />
+        <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55" />
+        <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39" />
+        <path d="M10.71 5.05A16 16 0 0 1 22.58 9" />
+        <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88" />
+        <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
+        <line x1="12" y1="20" x2="12.01" y2="20" />
+      </g>
+      <g id="icon-x">
+        <line x1="18" y1="6" x2="6" y2="18" />
+        <line x1="6" y1="6" x2="18" y2="18" />
+      </g>
+      <g id="icon-gauge">
+        <path d="M12 2a10 10 0 1 0 10 10" />
+        <path d="M12 12l5-5" />
+        <path d="M12 2v3" />
+      </g>
+      <g id="icon-layers">
+        <polygon points="12 2 2 7 12 12 22 7 12 2" />
+        <polyline points="2 17 12 22 22 17" />
+        <polyline points="2 12 12 17 22 12" />
+      </g>
+      <g id="icon-users">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+        <circle cx="9" cy="7" r="4" />
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+      </g>
+      <g id="icon-refresh">
+        <polyline points="23 4 23 10 17 10" />
+        <polyline points="1 20 1 14 7 14" />
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+      </g>
+      <g id="icon-download">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+        <polyline points="7 10 12 15 17 10" />
+        <line x1="12" y1="15" x2="12" y2="3" />
+      </g>
+      <g id="icon-sliders">
+        <line x1="4" y1="21" x2="4" y2="14" />
+        <line x1="4" y1="10" x2="4" y2="3" />
+        <line x1="12" y1="21" x2="12" y2="12" />
+        <line x1="12" y1="8" x2="12" y2="3" />
+        <line x1="20" y1="21" x2="20" y2="16" />
+        <line x1="20" y1="12" x2="20" y2="3" />
+        <line x1="1" y1="14" x2="7" y2="14" />
+        <line x1="9" y1="8" x2="15" y2="8" />
+        <line x1="17" y1="16" x2="23" y2="16" />
+      </g>
+    </defs>
+  </svg>
+
+  <div class="app">
+
+    <!-- ============ HEADER ============ -->
+    <header class="header">
+      <div class="header-left">
+        <button class="menu-btn" id="menuBtn" aria-label="Toggle sidebar">
+          <svg class="icon" viewBox="0 0 24 24">
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </button>
+        <div class="logo-wrap">
+          <div class="logo-badge" title="University Logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 10L12 5 2 10l10 5 10-5z" />
+              <path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5" />
+            </svg>
+          </div>
+          <div class="brand-text">
+            <div class="uni">Parul University</div>
+            <div class="proj"><span>Smart IoT</span> Water Monitoring Platform</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-center">
+        <div class="dt-box">
+          <svg class="icon" viewBox="0 0 24 24">
+            <rect x="3" y="4" width="18" height="18" rx="3" />
+            <line x1="16" y1="2" x2="16" y2="6" />
+            <line x1="8" y1="2" x2="8" y2="6" />
+            <line x1="3" y1="10" x2="21" y2="10" />
+          </svg>
+          <span id="headerDate">--</span>
+        </div>
+        <div class="dt-box">
+          <svg class="icon" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
+          <span class="time" id="headerTime">--:--:--</span>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+          <span class="knob" id="themeKnob">
+            <svg viewBox="0 0 24 24" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" id="themeIcon">
+              <circle cx="12" cy="12" r="5" />
+              <path
+                d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+            </svg>
+          </span>
+        </button>
+
+        <div class="profile-wrap" id="notifWrap">
+          <button class="icon-btn" id="notifBtn" aria-label="Notifications">
+            <svg class="icon" viewBox="0 0 24 24">
+              <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+            </svg>
+            <span class="dot" id="notifDot"></span>
+          </button>
+          <div class="dropdown" id="notifDropdown">
+            <div class="dropdown-title">Notifications</div>
+            <div id="notifList"></div>
+            <div class="dropdown-divider"></div>
+            <button class="dropdown-item" id="clearNotifs">
+              <svg class="icon" viewBox="0 0 24 24">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              Mark all as read
+            </button>
+          </div>
+        </div>
+
+        <div class="profile-wrap" id="profileWrap">
+          <button class="profile-btn" id="profileBtn">
+            <span class="avatar">AD</span>
+            <span class="profile-meta">
+              <span class="pname">Admin User</span>
+              <span class="prole">System Administrator</span>
+            </span>
+          </button>
+          <div class="dropdown" id="profileDropdown">
+            <div class="dropdown-title">Signed in as Admin</div>
+            <button class="dropdown-item" data-toast="Opening profile settings…">
+              <svg class="icon" viewBox="0 0 24 24">
+                <circle cx="12" cy="8" r="4" />
+                <path d="M4 21c0-4 4-6 8-6s8 2 8 6" />
+              </svg>
+              My Profile
+            </button>
+            <button class="dropdown-item" data-target="settingsPage">
+              <svg class="icon" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="3" />
+                <path
+                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+              </svg>
+              Settings
+            </button>
+            <div class="dropdown-divider"></div>
+            <button class="dropdown-item danger" id="logoutBtn">
+              <svg class="icon" viewBox="0 0 24 24">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="layout">
+      <!-- ============ SIDEBAR ============ -->
+      <aside class="sidebar" id="sidebar">
+        <div class="nav-group">
+          <div class="nav-label">Main</div>
+          <a class="nav-item active" data-target="dashboardPage">
+            <svg class="icon" viewBox="0 0 24 24">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+              <polyline points="9 22 9 12 15 12 15 22" />
+            </svg>
+            Dashboard
+          </a>
+          <a class="nav-item" data-target="tanksSection">
+            <svg class="icon" viewBox="0 0 24 24">
+              <ellipse cx="12" cy="5" rx="9" ry="3" />
+              <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+              <path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3" />
+            </svg>
+            Water Tanks
+          </a>
+          <a class="nav-item" data-target="analyticsPage">
+            <svg class="icon" viewBox="0 0 24 24">
+              <line x1="18" y1="20" x2="18" y2="10" />
+              <line x1="12" y1="20" x2="12" y2="4" />
+              <line x1="6" y1="20" x2="6" y2="14" />
+            </svg>
+            Analytics
+          </a>
+          <a class="nav-item" data-target="historyPage">
+            <svg class="icon" viewBox="0 0 24 24">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="8" y1="13" x2="16" y2="13" />
+              <line x1="8" y1="17" x2="16" y2="17" />
+            </svg>
+            Historical Data
+          </a>
+          <a class="nav-item" data-target="alertsPage">
+            <svg class="icon" viewBox="0 0 24 24">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+            Alerts
+            <span class="count" id="sidebarAlertCount">0</span>
+          </a>
+          <a class="nav-item" data-target="reportsPage">
+            <svg class="icon" viewBox="0 0 24 24">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="9" y1="15" x2="15" y2="15" />
+            </svg>
+            Reports
+          </a>
+          <a class="nav-item" data-target="complaintsPage">
+            <svg class="icon" viewBox="0 0 24 24">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+            Complaints
+            <span class="count" id="sidebarComplaintCount" style="display:none; background:var(--warning);">0</span>
+          </a>
+        </div>
+        <div class="nav-group sidebar-bottom">
+          <div class="dropdown-divider"></div>
+          <a class="nav-item" data-target="settingsPage">
+            <svg class="icon" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="3" />
+              <path
+                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </svg>
+            Settings
+          </a>
+          <a class="nav-item logout" id="sidebarLogout">
+            <svg class="icon" viewBox="0 0 24 24">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+            Logout
+          </a>
+        </div>
+      </aside>
+      <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+      <!-- ============ MAIN CONTENT AREA ============ -->
+      <main class="main">
+
+        <!-- 1. DASHBOARD PAGE VIEW -->
+        <div class="page-view active" id="dashboardPage">
+          <!-- TOP STATISTICS -->
+          <section class="section-block" id="topStats">
+            <div class="section-header">
+              <div>
+                <h2 style="margin-bottom:2px;">System Overview</h2>
+                <div class="section-sub">Real-time summary across all monitored tanks</div>
+              </div>
+            </div>
+            <div class="stats-grid" id="statsGrid"></div>
+          </section>
+
+          <!-- LIVE PARAMETERS -->
+          <section class="section-block" id="paramsSection">
+            <div class="section-header">
+              <div>
+                <h2 style="margin-bottom:2px;">Live Water Parameters</h2>
+                <div class="section-sub">Aggregated live readings — updates every 4 seconds</div>
+              </div>
+            </div>
+            <div class="params-grid" id="paramsGrid"></div>
+          </section>
+
+          <!-- TANK STATUS -->
+          <section class="section-block" id="tanksSection">
+            <div class="section-header">
+              <div>
+                <h2 style="margin-bottom:2px;">Tank Status</h2>
+                <div class="section-sub">Individual tank health and telemetry</div>
+              </div>
+            </div>
+            <div class="tanks-grid" id="tanksGrid"></div>
+          </section>
+
+          <!-- SENSOR STATUS + ALERTS -->
+          <div class="two-col">
+            <section class="glass sensor-status-block" id="sensorSection">
+              <h2>Live Sensor Status</h2>
+              <div class="sensor-status-list" id="sensorStatusList"></div>
+            </section>
+
+            <section class="glass alerts-block" id="alertsSection">
+              <div class="section-header" style="margin-bottom:14px;">
+                <h2 style="margin-bottom:0;">Alert Panel</h2>
+                <span class="badge" id="alertCountBadge">0 Active</span>
+              </div>
+              <div class="alerts-list" id="alertsList"></div>
+            </section>
+          </div>
+
+          <!-- RECENT ACTIVITY -->
+          <section class="section-block" id="activitySection">
+            <div class="section-header">
+              <div>
+                <h2 style="margin-bottom:2px;">Recent System Activity</h2>
+                <div class="section-sub">Latest system events and updates</div>
+              </div>
+            </div>
+            <div class="glass activity-list" id="activityList" style="padding:16px 20px;">
+              <div class="activity-item">
+                <div class="activity-dot success"><svg class="icon">
+                    <use href="#icon-checkCircle"></use>
+                  </svg></div>
+                <div>
+                  <div class="activity-text">Tank A telemetry updated</div>
+                  <div class="activity-time">Just now</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot danger"><svg class="icon">
+                    <use href="#icon-wifiOff"></use>
+                  </svg></div>
+                <div>
+                  <div class="activity-text">Tank C node disconnected</div>
+                  <div class="activity-time">15 minutes ago</div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- 2. ANALYTICS PAGE VIEW -->
+        <div class="page-view" id="analyticsPage">
+          <div class="section-header">
+            <div>
+              <h2 style="margin-bottom:2px;">Analytics &amp; Trend Insights</h2>
+              <div class="section-sub">Comprehensive telemetry trends and parameter calculations</div>
+            </div>
+          </div>
+
+          <!-- Analytics Summary Cards -->
+          <div class="stats-grid" id="analyticsSummaryCards" style="margin-bottom:30px;"></div>
+
+          <!-- Analytics Trend Charts Grid -->
+          <div class="charts-grid">
+            <div class="glass chart-card">
+              <div class="chart-header">
+                <div class="chart-title">pH Level Trend<span>Safe Range: 6.5 - 8.0 pH</span></div>
+              </div>
+              <div class="chart-canvas-wrap"><canvas id="phTrendChart"></canvas></div>
+            </div>
+
+            <div class="glass chart-card">
+              <div class="chart-header">
+                <div class="chart-title">TDS Concentration Trend<span>Target: &lt; 300 ppm</span></div>
+              </div>
+              <div class="chart-canvas-wrap"><canvas id="tdsTrendChart"></canvas></div>
+            </div>
+
+            <div class="glass chart-card">
+              <div class="chart-header">
+                <div class="chart-title">Temperature Trend<span>Target: 15°C - 30°C</span></div>
+              </div>
+              <div class="chart-canvas-wrap"><canvas id="tempTrendChart"></canvas></div>
+            </div>
+
+            <div class="glass chart-card">
+              <div class="chart-header">
+                <div class="chart-title">Turbidity Trend<span>Target: &lt; 3.0 NTU</span></div>
+              </div>
+              <div class="chart-canvas-wrap"><canvas id="turbidityTrendChart"></canvas></div>
+            </div>
+
+            <div class="glass chart-card">
+              <div class="chart-header">
+                <div class="chart-title">Water Level Trend<span>Capacity Percentage</span></div>
+              </div>
+              <div class="chart-canvas-wrap"><canvas id="levelTrendChart"></canvas></div>
+            </div>
+
+            <div class="glass chart-card">
+              <div class="chart-header">
+                <div class="chart-title">Comparative Averages<span>Daily vs Weekly vs Monthly</span></div>
+              </div>
+              <div class="chart-canvas-wrap"><canvas id="comparisonAvgChart"></canvas></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. HISTORICAL DATA PAGE VIEW -->
+        <div class="page-view" id="historyPage">
+          <div class="section-header">
+            <div>
+              <h2 style="margin-bottom:2px;">Historical Telemetry Log</h2>
+              <div class="section-sub">Filter, analyze, search, and export telemetry records</div>
+            </div>
+          </div>
+
+          <!-- Filter Toolbar -->
+          <div class="glass filter-toolbar">
+            <div class="filter-group">
+              <select class="select-control" id="histTankSelect">
+                <option value="all">All Monitored Tanks</option>
+                <option value="A">Tank A (Block A)</option>
+                <option value="B">Tank B (Block B)</option>
+                <option value="C">Tank C (Block C)</option>
+                <option value="D">Tank D (Hostel)</option>
+              </select>
+
+              <button class="filter-btn" data-range="today">Today</button>
+              <button class="filter-btn" data-range="yesterday">Yesterday</button>
+              <button class="filter-btn active" data-range="7d">Last 7 Days</button>
+              <button class="filter-btn" data-range="30d">Last 30 Days</button>
+              <button class="filter-btn" data-range="custom">Custom Range</button>
+
+              <div id="customDateRangeWrap" style="display:none; align-items:center; gap:8px;">
+                <input type="date" class="input-control" id="histFromDate">
+                <span style="font-size:12px; color:var(--text-muted);">to</span>
+                <input type="date" class="input-control" id="histToDate">
+              </div>
+
+              <input type="month" class="input-control" id="histMonthSelect" title="Month Selection">
+              <input type="week" class="input-control" id="histWeekSelect" title="Week Selection">
+            </div>
+
+            <div class="filter-group">
+              <input type="text" class="input-control" id="histSearch" placeholder="Search records…"
+                style="width:180px;">
+              <button class="btn btn-primary" id="exportCSVBtn" style="flex:none; padding:8px 14px;">
+                <svg class="icon">
+                  <use href="#icon-download"></use>
+                </svg> CSV
+              </button>
+              <button class="btn btn-ghost" id="exportPDFBtn" style="flex:none; padding:8px 14px;">
+                <svg class="icon">
+                  <use href="#icon-download"></use>
+                </svg> PDF
+              </button>
+            </div>
+          </div>
+
+          <!-- History Parameter Stats Summary -->
+          <div class="stats-grid" id="historyStatsSummaryGrid" style="margin-bottom:20px;"></div>
+
+          <!-- Data Table -->
+          <div class="glass table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Time</th>
+                  <th>Tank</th>
+                  <th>pH</th>
+                  <th>TDS (ppm)</th>
+                  <th>EC (µS/cm)</th>
+                  <th>Temp (°C)</th>
+                  <th>Turbidity (NTU)</th>
+                  <th>Level (%)</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="historyTableBody"></tbody>
+            </table>
+
+            <div class="table-pagination">
+              <span class="pagination-info" id="histPageInfo">Showing entries</span>
+              <div class="pagination-controls">
+                <button class="pagination-btn" id="histPrevPage">Previous</button>
+                <button class="pagination-btn" id="histNextPage">Next</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. ALERTS PAGE VIEW -->
+        <div class="page-view" id="alertsPage">
+          <div class="section-header">
+            <div>
+              <h2 style="margin-bottom:2px;">Alert Management Center</h2>
+              <div class="section-sub">Active system warnings, critical thresholds, and audit log</div>
+            </div>
+            <div class="filter-group">
+              <button class="filter-btn alert-filter-btn active" data-sev="all">All Alerts</button>
+              <button class="filter-btn alert-filter-btn" data-sev="critical">Critical Only</button>
+              <button class="filter-btn alert-filter-btn" data-sev="warning">Warnings Only</button>
+            </div>
+          </div>
+          <div class="glass" style="padding:20px;">
+            <div class="alerts-list" id="dedicatedAlertsList"></div>
+          </div>
+        </div>
+
+        <!-- 5. REPORTS PAGE VIEW -->
+        <div class="page-view" id="reportsPage">
+          <div class="section-header">
+            <div>
+              <h2 style="margin-bottom:2px;">Report Generator</h2>
+              <div class="section-sub">Generate customized compliance and telemetry export reports</div>
+            </div>
+          </div>
+
+          <div class="glass" style="padding:24px; max-width:600px;">
+            <div class="form-grid" style="grid-template-columns:1fr; gap:16px;">
+              <div class="form-group">
+                <label for="reportTypeSelect">Report Period</label>
+                <select class="select-control" id="reportTypeSelect">
+                  <option value="daily">Daily Telemetry Summary</option>
+                  <option value="weekly" selected>Weekly Water Quality Report</option>
+                  <option value="monthly">Monthly Water Quality Audit</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="reportTankSelect">Target Tank</label>
+                <select class="select-control" id="reportTankSelect">
+                  <option value="all">All Tanks</option>
+                  <option value="A">Tank A</option>
+                  <option value="B">Tank B</option>
+                  <option value="C">Tank C</option>
+                  <option value="D">Tank D</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="reportFormatSelect">Export Format</label>
+                <select class="select-control" id="reportFormatSelect">
+                  <option value="pdf">PDF Document (.pdf)</option>
+                  <option value="csv">CSV Data Sheet (.csv)</option>
+                </select>
+              </div>
+
+              <button class="btn btn-primary" id="generateReportBtn" style="margin-top:10px;">
+                <svg class="icon">
+                  <use href="#icon-download"></use>
+                </svg> Generate &amp; Download Report
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6. COMPLAINTS PAGE VIEW -->
+        <div class="page-view" id="complaintsPage">
+          <div class="section-header">
+            <div>
+              <h2 style="margin-bottom:2px;">Community Complaints &amp; Escalation Center</h2>
+              <div class="section-sub">Real-time complaint tracking, automated escalation, and maintenance management
+              </div>
+            </div>
+          </div>
+
+          <!-- Escalation Banner & Cooldown Banner -->
+          <div id="complaintEscalationBanner"></div>
+
+          <!-- Summary Stats -->
+          <div class="stats-grid" id="complaintsSummaryCards" style="margin-bottom:24px;"></div>
+
+          <!-- Toolbar & Filters -->
+          <div class="glass filter-toolbar" style="margin-bottom:20px;">
+            <div class="filter-group">
+              <button class="filter-btn complaint-status-filter active" data-status="all">All Status</button>
+              <button class="filter-btn complaint-status-filter" data-status="Pending">Pending</button>
+              <button class="filter-btn complaint-status-filter" data-status="In Review">In Review</button>
+              <button class="filter-btn complaint-status-filter" data-status="Escalated">Escalated</button>
+              <button class="filter-btn complaint-status-filter" data-status="Resolved">Resolved</button>
+              <button class="filter-btn complaint-status-filter" data-status="Rejected">Rejected</button>
+
+              <select class="select-control" id="complaintPeriodSelect" style="margin-left:10px;">
+                <option value="all">All Timeframes</option>
+                <option value="current_week">Current Week</option>
+                <option value="previous_weeks">Previous Weeks</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <input type="text" class="input-control" id="complaintSearchInput" placeholder="Search complaints…"
+                style="width:200px;">
+            </div>
+          </div>
+
+          <!-- Complaints Table -->
+          <div class="glass table-responsive" style="margin-bottom:30px;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Complaint ID</th>
+                  <th>Tank</th>
+                  <th>Date &amp; Time</th>
+                  <th>Category</th>
+                  <th>Description</th>
+                  <th>Client Identifier</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="complaintsTableBody"></tbody>
+            </table>
+          </div>
+
+          <!-- Analytics Charts -->
+          <div class="section-header" style="margin-bottom:14px;">
+            <div>
+              <h3 style="font-size:16px; font-weight:800;">Complaint Analytics</h3>
+              <div class="section-sub">Category distribution and resolution breakdowns</div>
+            </div>
+          </div>
+          <div class="charts-grid">
+            <div class="glass chart-card">
+              <div class="chart-header">
+                <div class="chart-title">Complaints by Category<span>Most Frequent Reported Issues</span></div>
+              </div>
+              <div class="chart-canvas-wrap"><canvas id="complaintCategoryChart"></canvas></div>
+            </div>
+
+            <div class="glass chart-card">
+              <div class="chart-header">
+                <div class="chart-title">Complaint Status Breakdown<span>Resolution Distribution</span></div>
+              </div>
+              <div class="chart-canvas-wrap"><canvas id="complaintStatusChart"></canvas></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 7. SETTINGS PAGE VIEW -->
+        <div class="page-view" id="settingsPage">
+          <div class="section-header">
+            <div>
+              <h2 style="margin-bottom:2px;">System &amp; Threshold Settings</h2>
+              <div class="section-sub">Configure safe sensor threshold parameters and system preferences</div>
+            </div>
+          </div>
+
+          <div class="glass" style="padding:24px; max-width:680px;">
+            <h3 style="font-size:15px; font-weight:800; margin-bottom:16px;">Sensor Threshold Configuration</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="setPhMin">Min Good pH</label>
+                <input type="number" step="0.1" class="input-control" id="setPhMin" value="6.5">
+              </div>
+              <div class="form-group">
+                <label for="setPhMax">Max Good pH</label>
+                <input type="number" step="0.1" class="input-control" id="setPhMax" value="8.0">
+              </div>
+              <div class="form-group">
+                <label for="setTdsMax">Max Good TDS (ppm)</label>
+                <input type="number" class="input-control" id="setTdsMax" value="300">
+              </div>
+              <div class="form-group">
+                <label for="setEcMax">Max Good EC (µS/cm)</label>
+                <input type="number" class="input-control" id="setEcMax" value="800">
+              </div>
+              <div class="form-group">
+                <label for="setTempMax">Max Good Temp (°C)</label>
+                <input type="number" step="0.1" class="input-control" id="setTempMax" value="30">
+              </div>
+              <div class="form-group">
+                <label for="setTurbidityMax">Max Good Turbidity (NTU)</label>
+                <input type="number" step="0.1" class="input-control" id="setTurbidityMax" value="3">
+              </div>
+              <div class="form-group">
+                <label for="setLevelMin">Min Good Water Level (%)</label>
+                <input type="number" class="input-control" id="setLevelMin" value="40">
+              </div>
+            </div>
+
+            <div style="display:flex; gap:12px; margin-top:24px;">
+              <button class="btn btn-primary" id="saveSettingsBtn">Save Thresholds</button>
+              <button class="btn btn-ghost" id="resetSettingsBtn">Reset Defaults</button>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      Developed for <b>University Water Monitoring System</b> · Department of IoT &amp; Embedded Systems
+      <br><span class="ver">Version 1.0</span>
+    </footer>
+  </div>
+
+  <!-- MODAL OVERLAY -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="glass modal" id="modal"></div>
+  </div>
+
+  <!-- TOAST STACK -->
+  <div class="toast-stack" id="toastStack"></div>
+
+  <!-- MAIN ENTRY MODULE SCRIPT -->
+  <script type="module" src="js/app.js"></script>
+</body>
+
+</html>
