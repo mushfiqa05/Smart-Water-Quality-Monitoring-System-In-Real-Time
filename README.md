@@ -102,9 +102,9 @@ This is a project-specific rule-based score, not a certified Water Quality Index
 
 The dashboard provides a web-based interface for viewing water monitoring data. It was deployed using Firebase Hosting and uses Firebase Realtime Database for cloud data.
 
-The dashboard is built with HTML, CSS, and JavaScript.
+The dashboard is built with HTML, CSS, and JavaScript. It provides a web interface for viewing water-monitoring data collected by the ESP32 and stored in Firebase Realtime Database.
 
-Dashboard screenshots and the public deployment URL can be added to this section when available. A working demonstration video is not currently included in the repository.
+**Live Demo:** [Open the Smart Water Monitoring Dashboard]([https://smart-water-monitoring-3a117.web.app/])
 
 ## Project Status
 
