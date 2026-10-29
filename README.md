@@ -104,7 +104,7 @@ The dashboard provides a web-based interface for viewing water monitoring data. 
 
 The dashboard is built with HTML, CSS, and JavaScript. It provides a web interface for viewing water-monitoring data collected by the ESP32 and stored in Firebase Realtime Database.
 
-**Live Demo:** [Open the Smart Water Monitoring Dashboard]([https://smart-water-monitoring-3a117.web.app/])
+**Live Demo:** [Open the Smart Water Monitoring Dashboard][https://smart-water-monitoring-3a117.web.app/]
 
 ## Project Status
 
